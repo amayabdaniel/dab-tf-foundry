@@ -1,0 +1,190 @@
+{
+  "widgets": [
+    {
+      "type": "text",
+      "x": 0, "y": 0, "width": 24, "height": 1,
+      "properties": {
+        "markdown": "# ${service_name} (${environment}) — ${service_type}"
+      }
+    }
+%{ if is_container }
+    ,{
+      "type": "metric",
+      "x": 0, "y": 1, "width": 8, "height": 6,
+      "properties": {
+        "title": "CPU Utilization",
+        "region": "${region}",
+        "metrics": [["AWS/ECS", "CPUUtilization", "ClusterName", "${ecs_cluster_name}", "ServiceName", "${ecs_service_name}", {"stat": "Average"}]],
+        "period": 60,
+        "view": "timeSeries",
+        "yAxis": {"left": {"min": 0, "max": 100}}
+      }
+    },
+    {
+      "type": "metric",
+      "x": 8, "y": 1, "width": 8, "height": 6,
+      "properties": {
+        "title": "Memory Utilization",
+        "region": "${region}",
+        "metrics": [["AWS/ECS", "MemoryUtilization", "ClusterName", "${ecs_cluster_name}", "ServiceName", "${ecs_service_name}", {"stat": "Average"}]],
+        "period": 60,
+        "view": "timeSeries",
+        "yAxis": {"left": {"min": 0, "max": 100}}
+      }
+    },
+    {
+      "type": "metric",
+      "x": 16, "y": 1, "width": 8, "height": 6,
+      "properties": {
+        "title": "Running Task Count",
+        "region": "${region}",
+        "metrics": [["ECS/ContainerInsights", "RunningTaskCount", "ClusterName", "${ecs_cluster_name}", "ServiceName", "${ecs_service_name}", {"stat": "Average"}]],
+        "period": 60,
+        "view": "timeSeries"
+      }
+    }
+%{ endif }
+%{ if is_function }
+    ,{
+      "type": "metric",
+      "x": 0, "y": 1, "width": 8, "height": 6,
+      "properties": {
+        "title": "Invocations",
+        "region": "${region}",
+        "metrics": [["AWS/Lambda", "Invocations", "FunctionName", "${lambda_function_name}", {"stat": "Sum"}]],
+        "period": 60,
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 8, "y": 1, "width": 8, "height": 6,
+      "properties": {
+        "title": "Duration (p50 / p99)",
+        "region": "${region}",
+        "metrics": [
+          ["AWS/Lambda", "Duration", "FunctionName", "${lambda_function_name}", {"stat": "p50", "label": "p50"}],
+          ["AWS/Lambda", "Duration", "FunctionName", "${lambda_function_name}", {"stat": "p99", "label": "p99"}]
+        ],
+        "period": 60,
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 16, "y": 1, "width": 8, "height": 6,
+      "properties": {
+        "title": "Errors & Throttles",
+        "region": "${region}",
+        "metrics": [
+          ["AWS/Lambda", "Errors", "FunctionName", "${lambda_function_name}", {"stat": "Sum", "color": "#d62728"}],
+          ["AWS/Lambda", "Throttles", "FunctionName", "${lambda_function_name}", {"stat": "Sum", "color": "#ff7f0e"}]
+        ],
+        "period": 60,
+        "view": "timeSeries"
+      }
+    }
+%{ endif }
+%{ if has_queue }
+    ,{
+      "type": "metric",
+      "x": 0, "y": 7, "width": 8, "height": 6,
+      "properties": {
+        "title": "Queue Depth",
+        "region": "${region}",
+        "metrics": [
+          ["AWS/SQS", "ApproximateNumberOfMessagesVisible", "QueueName", "${sqs_queue_name}", {"stat": "Sum", "label": "Visible"}],
+          ["AWS/SQS", "ApproximateNumberOfMessagesNotVisible", "QueueName", "${sqs_queue_name}", {"stat": "Sum", "label": "In Flight"}]
+        ],
+        "period": 60,
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 8, "y": 7, "width": 8, "height": 6,
+      "properties": {
+        "title": "Messages Sent / Received / Deleted",
+        "region": "${region}",
+        "metrics": [
+          ["AWS/SQS", "NumberOfMessagesSent", "QueueName", "${sqs_queue_name}", {"stat": "Sum"}],
+          ["AWS/SQS", "NumberOfMessagesReceived", "QueueName", "${sqs_queue_name}", {"stat": "Sum"}],
+          ["AWS/SQS", "NumberOfMessagesDeleted", "QueueName", "${sqs_queue_name}", {"stat": "Sum"}]
+        ],
+        "period": 60,
+        "view": "timeSeries"
+      }
+    }
+%{ endif }
+%{ if has_dlq }
+    ,{
+      "type": "metric",
+      "x": 16, "y": 7, "width": 8, "height": 6,
+      "properties": {
+        "title": "DLQ Depth",
+        "region": "${region}",
+        "metrics": [["AWS/SQS", "ApproximateNumberOfMessagesVisible", "QueueName", "${dlq_queue_name}", {"stat": "Sum", "color": "#d62728"}]],
+        "period": 60,
+        "view": "timeSeries"
+      }
+    }
+%{ endif }
+%{ if has_db }
+    ,{
+      "type": "metric",
+      "x": 0, "y": 13, "width": 8, "height": 6,
+      "properties": {
+        "title": "DB CPU Utilization",
+        "region": "${region}",
+        "metrics": [["AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "${db_instance_identifier}", {"stat": "Average"}]],
+        "period": 300,
+        "view": "timeSeries",
+        "yAxis": {"left": {"min": 0, "max": 100}}
+      }
+    },
+    {
+      "type": "metric",
+      "x": 8, "y": 13, "width": 8, "height": 6,
+      "properties": {
+        "title": "DB Connections",
+        "region": "${region}",
+        "metrics": [["AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "${db_instance_identifier}", {"stat": "Average"}]],
+        "period": 300,
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 16, "y": 13, "width": 8, "height": 6,
+      "properties": {
+        "title": "DB Free Storage (GB)",
+        "region": "${region}",
+        "metrics": [["AWS/RDS", "FreeStorageSpace", "DBInstanceIdentifier", "${db_instance_identifier}", {"stat": "Average"}]],
+        "period": 300,
+        "view": "timeSeries"
+      }
+    }
+%{ endif }
+    ,{
+      "type": "metric",
+      "x": 0, "y": 19, "width": 12, "height": 6,
+      "properties": {
+        "title": "Application Log Errors",
+        "region": "${region}",
+        "metrics": [["Foundry/${service_name}", "LogErrors", {"stat": "Sum", "color": "#d62728"}]],
+        "period": 60,
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "log",
+      "x": 12, "y": 19, "width": 12, "height": 6,
+      "properties": {
+        "title": "Recent Errors",
+        "region": "${region}",
+        "query": "SOURCE '${log_group_name}' | filter @message like /(?i)error/ | sort @timestamp desc | limit 20",
+        "view": "table"
+      }
+    }
+  ]
+}

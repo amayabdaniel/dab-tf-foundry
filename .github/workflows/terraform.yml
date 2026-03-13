@@ -1,0 +1,70 @@
+name: Terraform CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory:
+          - modules/container
+          - modules/function
+          - modules/queue
+          - modules/database
+          - modules/observability
+          - modules/guardrails
+          - live/_components/card-catalog-api
+          - live/_components/orders-ingestion
+          - live/_components/manufacturing-orchestrator
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.14"
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive .
+
+      - name: Terraform Init
+        working-directory: ${{ matrix.directory }}
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        working-directory: ${{ matrix.directory }}
+        run: terraform validate
+
+  test:
+    name: Test Modules
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        module:
+          - modules/container
+          - modules/function
+          - modules/queue
+          - modules/database
+          - modules/observability
+          - modules/guardrails
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.14"
+
+      - name: Terraform Init
+        working-directory: ${{ matrix.module }}
+        run: terraform init -backend=false
+
+      - name: Terraform Test
+        working-directory: ${{ matrix.module }}
+        run: terraform test

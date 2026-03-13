@@ -1,0 +1,28 @@
+# Terraform / Terragrunt
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+.terragrunt-cache/
+backend.tf
+provider.tf
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.tfvars
+!*.tfvars.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build artifacts
+*.zip
