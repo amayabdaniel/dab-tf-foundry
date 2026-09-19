@@ -46,13 +46,22 @@ resource "aws_vpc_security_group_ingress_rule" "postgres" {
   tags                         = local.all_tags
 }
 
-resource "aws_vpc_security_group_egress_rule" "all_outbound" {
-  security_group_id = aws_security_group.this.id
-  description       = "Allow all outbound traffic"
-  ip_protocol       = "-1"
-  cidr_ipv4         = "0.0.0.0/0"
-  tags              = local.all_tags
-}
+# Deliberately no egress rule on the RDS SG.
+#
+# RDS Postgres receives connections; it does not initiate them. The prior
+# `all_outbound 0.0.0.0/0 -1` rule (mirroring the "AWS default egress" habit
+# from EC2 SGs) gave the DB engine an outbound path it has no legitimate use
+# for — and a compromised extension, an aurora-style outbound custom endpoint,
+# or a logical-decoding side channel could ride that path to attacker infra.
+# Terraform's `aws_security_group` resource does NOT auto-create the legacy
+# implicit `0.0.0.0/0` egress rule (only `aws_default_security_group` does),
+# so leaving egress unspecified here means "no outbound rule" — not "AWS adds
+# one for us" — which is the correct shape for a database SG.
+#
+# If a future deployment adds a managed add-on that needs outbound (e.g., an
+# RDS Custom for Oracle scenario, or DB-side integration with an external
+# monitoring endpoint that pushes rather than being pulled), scope the rule to
+# that specific destination — never re-add `0.0.0.0/0 -1`.
 
 # -----------------------------------------------------------------------------
 # Parameter Group
