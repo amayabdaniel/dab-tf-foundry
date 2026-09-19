@@ -11,12 +11,13 @@ terraform {
 }
 
 inputs = {
-  vpc_id              = local.env.locals.vpc_id
-  private_subnet_ids  = local.env.locals.private_subnet_ids
-  data_subnet_ids     = local.env.locals.data_subnet_ids
-  ecs_cluster_arn     = local.env.locals.ecs_cluster_arn
-  alb_listener_arn    = local.env.locals.alb_listener_arn
-  alarm_sns_topic_arn = local.env.locals.alarm_sns_topic_arn
+  vpc_id                = local.env.locals.vpc_id
+  private_subnet_ids    = local.env.locals.private_subnet_ids
+  data_subnet_ids       = local.env.locals.data_subnet_ids
+  ecs_cluster_arn       = local.env.locals.ecs_cluster_arn
+  alb_listener_arn      = local.env.locals.alb_listener_arn
+  alb_security_group_id = local.env.locals.alb_security_group_id
+  alarm_sns_topic_arn   = local.env.locals.alarm_sns_topic_arn
 
   container_image   = "222222222222.dkr.ecr.us-east-1.amazonaws.com/card-catalog-api:v1.2.0"
   cpu               = 512

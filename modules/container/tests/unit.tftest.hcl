@@ -92,10 +92,43 @@ run "valid_api_with_load_balancer" {
     listener_arn           = "arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/main/1234567890123456/1234567890123456"
     listener_rule_priority = 100
     path_patterns          = ["/api/v1/*"]
+    alb_security_group_id  = "sg-0abc123def456ghij"
   }
 
   assert {
     condition     = aws_lb_target_group.this[0].port == 8080
     error_message = "Target group port must match default container_port."
   }
+
+  # The container-port SG ingress rule must reference the ALB SG, NOT 0.0.0.0/0.
+  # Pre-fix the rule was `cidr_ipv4 = "0.0.0.0/0"`, letting anything with pod
+  # network reachability bypass the ALB. This assertion pins the new shape.
+  assert {
+    condition     = aws_vpc_security_group_ingress_rule.container_port[0].referenced_security_group_id == "sg-0abc123def456ghij"
+    error_message = "container-port ingress must reference the ALB SG (not 0.0.0.0/0) so the ALB is the only path to the task."
+  }
+
+  assert {
+    condition     = aws_vpc_security_group_ingress_rule.container_port[0].cidr_ipv4 == null
+    error_message = "container-port ingress must NOT set cidr_ipv4 — that would re-open the 0.0.0.0/0 hole."
+  }
+}
+
+# Regression: enable_load_balancer=true with no alb_security_group_id must
+# fail at plan time via the resource precondition, not silently ship an SG
+# without any ingress rule (or worse, a fallback back to 0.0.0.0/0).
+run "reject_load_balancer_without_alb_sg" {
+  command = plan
+
+  variables {
+    enable_load_balancer   = true
+    listener_arn           = "arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/main/1234567890123456/1234567890123456"
+    listener_rule_priority = 100
+    path_patterns          = ["/api/v1/*"]
+    # alb_security_group_id deliberately unset
+  }
+
+  expect_failures = [
+    aws_vpc_security_group_ingress_rule.container_port,
+  ]
 }

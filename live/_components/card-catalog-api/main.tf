@@ -26,6 +26,7 @@ module "api" {
   listener_arn           = var.alb_listener_arn
   listener_rule_priority = 100
   path_patterns          = ["/api/cards", "/api/cards/*"]
+  alb_security_group_id  = var.alb_security_group_id
 
   health_check_path = "/health"
   desired_count     = 2

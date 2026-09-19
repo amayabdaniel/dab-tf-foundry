@@ -147,13 +147,20 @@ resource "aws_security_group" "this" {
 resource "aws_vpc_security_group_ingress_rule" "container_port" {
   count = var.enable_load_balancer ? 1 : 0
 
-  security_group_id = aws_security_group.this.id
-  description       = "Allow inbound traffic to container port"
-  from_port         = var.container_port
-  to_port           = var.container_port
-  ip_protocol       = "tcp"
-  cidr_ipv4         = "0.0.0.0/0"
-  tags              = local.all_tags
+  security_group_id            = aws_security_group.this.id
+  description                  = "Allow inbound traffic to container port from ALB SG only"
+  from_port                    = var.container_port
+  to_port                      = var.container_port
+  ip_protocol                  = "tcp"
+  referenced_security_group_id = var.alb_security_group_id
+  tags                         = local.all_tags
+
+  lifecycle {
+    precondition {
+      condition     = var.alb_security_group_id != null && var.alb_security_group_id != ""
+      error_message = "alb_security_group_id is required when enable_load_balancer is true — the container-port ingress rule references the ALB's SG rather than 0.0.0.0/0 so the ALB stays the only path to the task."
+    }
+  }
 }
 
 resource "aws_vpc_security_group_egress_rule" "all_outbound" {

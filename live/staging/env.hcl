@@ -12,6 +12,7 @@ locals {
   private_subnet_ids  = ["subnet-0stg-priv-1", "subnet-0stg-priv-2"]
   data_subnet_ids     = ["subnet-0stg-data-1", "subnet-0stg-data-2"]
   ecs_cluster_arn     = "arn:aws:ecs:us-east-1:222222222222:cluster/shared-staging"
-  alb_listener_arn    = "arn:aws:elasticloadbalancing:us-east-1:222222222222:listener/app/shared-staging-alb/abc123/def456"
-  alarm_sns_topic_arn = "arn:aws:sns:us-east-1:222222222222:platform-alarms-staging"
+  alb_listener_arn      = "arn:aws:elasticloadbalancing:us-east-1:222222222222:listener/app/shared-staging-alb/abc123/def456"
+  alb_security_group_id = "sg-0stg-alb-shared"
+  alarm_sns_topic_arn   = "arn:aws:sns:us-east-1:222222222222:platform-alarms-staging"
 }

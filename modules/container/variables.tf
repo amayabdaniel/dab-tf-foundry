@@ -97,6 +97,20 @@ variable "listener_arn" {
   default     = null
 }
 
+# The ECS task security group ingress rule used to be `cidr_ipv4 = "0.0.0.0/0"`
+# when a load balancer was attached. That is wrong shape: it bypasses the ALB
+# as a chokepoint (any host that can reach the task IP:port on the VPC network
+# — or the wider internet if the task ever runs with a public IP — reaches the
+# app directly, past every WAF/listener-rule/TLS control the ALB is there to
+# provide). Correct shape: ingress from the ALB's own security group only. The
+# module now requires the caller to pass that SG id when enable_load_balancer
+# is true, so the ingress rule can be a `referenced_security_group_id`.
+variable "alb_security_group_id" {
+  description = "Security group ID of the ALB that fronts the ECS tasks. REQUIRED when enable_load_balancer is true; the container-port ingress rule allows traffic only from this SG. Ignored when enable_load_balancer is false."
+  type        = string
+  default     = null
+}
+
 variable "listener_rule_priority" {
   description = "Priority for the ALB listener rule. Required when enable_load_balancer is true."
   type        = number

@@ -30,6 +30,11 @@ variable "alb_listener_arn" {
   type        = string
 }
 
+variable "alb_security_group_id" {
+  description = "Security group ID of the shared ALB. Passed to the container module so the task SG accepts traffic only from the ALB SG, not 0.0.0.0/0."
+  type        = string
+}
+
 variable "alarm_sns_topic_arn" {
   description = "SNS topic ARN for CloudWatch alarm notifications."
   type        = string

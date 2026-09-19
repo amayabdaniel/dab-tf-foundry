@@ -12,6 +12,7 @@ locals {
   private_subnet_ids  = ["subnet-0prd-priv-1", "subnet-0prd-priv-2"]
   data_subnet_ids     = ["subnet-0prd-data-1", "subnet-0prd-data-2"]
   ecs_cluster_arn     = "arn:aws:ecs:us-east-1:333333333333:cluster/shared-prod"
-  alb_listener_arn    = "arn:aws:elasticloadbalancing:us-east-1:333333333333:listener/app/shared-prod-alb/abc123/def456"
-  alarm_sns_topic_arn = "arn:aws:sns:us-east-1:333333333333:platform-alarms-prod"
+  alb_listener_arn      = "arn:aws:elasticloadbalancing:us-east-1:333333333333:listener/app/shared-prod-alb/abc123/def456"
+  alb_security_group_id = "sg-0prd-alb-shared"
+  alarm_sns_topic_arn   = "arn:aws:sns:us-east-1:333333333333:platform-alarms-prod"
 }
